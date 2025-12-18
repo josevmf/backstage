@@ -1,81 +1,33 @@
-const checklist = [
-  {
-    area: "SOM",
-    items: [
-      "Troca de pilhas – In-Ear Pastor",
-      "Troca de pilhas – In-Ear Ministro",
-      "Mic sem fio 1 – Pastor",
-      "Mic sem fio 2 – Ministro",
-      "Mic sem fio – Guia",
-      "Back vocal Verde (cabo)",
-      "Back vocal Rosa (cabo)",
-      "Back vocal Laranja (cabo)",
-      "Fones posicionados nos retornos"
-    ]
-  },
-  {
-    area: "LUZ",
-    items: [
-      "Mesa ligada",
-      "Cena correta carregada",
-      "Luz frontal ok",
-      "Luz de palco ok"
-    ]
-  },
-  {
-    area: "PROJEÇÃO",
-    items: [
-      "PC ligado",
-      "Software aberto",
-      "Slides carregados",
-      "Tela ok"
-    ]
-  }
-];
-
-const today = new Date().toLocaleDateString();
-const savedDay = localStorage.getItem("checklistDay");
-
-if (savedDay !== today) {
-  localStorage.clear();
-  localStorage.setItem("checklistDay", today);
-}
-
+const loginBox = document.getElementById("loginBox");
 const app = document.getElementById("app");
 
-checklist.forEach(section => {
-  const h2 = document.createElement("h2");
-  h2.textContent = section.area;
-  app.appendChild(h2);
+let user = localStorage.getItem("user");
 
-  section.items.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "item";
+if (user) {
+  loginBox.style.display = "none";
+  app.style.display = "block";
+}
 
-    const checked = localStorage.getItem(item) === "true";
+function login() {
+  const name = document.getElementById("usernameInput").value;
+  if (!name) return alert("Digite seu nome");
+  localStorage.setItem("user", name);
+  location.reload();
+}
 
-    div.innerHTML = `
-      <label>
-        <input type="checkbox" ${checked ? "checked" : ""}>
-        ${item}
-      </label>
-      <input type="text" placeholder="comentário..." value="${localStorage.getItem(item + "_comment") || ""}">
-    `;
+function log(area, item, status) {
+  const history = JSON.parse(localStorage.getItem("history")) || [];
 
-    const checkbox = div.querySelector("input[type=checkbox]");
-    const comment = div.querySelector("input[type=text]");
-
-    checkbox.addEventListener("change", () => {
-      localStorage.setItem(item, checkbox.checked);
-      if (item.toLowerCase().includes("pilha")) {
-        localStorage.setItem(item + "_log", new Date().toLocaleString());
-      }
-    });
-
-    comment.addEventListener("input", () => {
-      localStorage.setItem(item + "_comment", comment.value);
-    });
-
-    app.appendChild(div);
+  history.push({
+    user,
+    area,
+    item,
+    status,
+    date: new Date().toLocaleDateString(),
+    time: new Date().toLocaleTimeString()
   });
-});
+
+  localStorage.setItem("history", JSON.stringify(history));
+  alert(`${item} registrado por ${user}`);
+}
+
